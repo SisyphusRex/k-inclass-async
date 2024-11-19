@@ -92,11 +92,27 @@ class SyncAsyncAwaitDemoWindow:
 
     def _on_submit_thread(self, event, values):
         """on submit thread"""
-        pass
+        self.start = time.time()
+        self.progress = 0
+        self.window["-output-"].update("Fetching Name Threaded")
+        self.window["-time_output-"].update("Calculating")
+        task = threading.Thread(
+            target=self._get_name_thread,
+            args=(),
+        )
+        task.start()
 
     def _on_submit_thread_async(self, event, values):
         """on submit thread async"""
-        pass
+        self.start = time.time()
+        self.progress = 0
+        self.window["-output-"].update("Fetching Name Threaded")
+        self.window["-time_output-"].update("Calculating")
+        task = threading.Thread(
+            target=self._get_name_thread_async,
+            args=(),
+        )
+        task.start()
 
     def _on_submit_long_run(self, event, values):
         """on submit long run"""
@@ -149,3 +165,20 @@ class SyncAsyncAwaitDemoWindow:
             self.progress += 5
             self.window["-progress-"].update(self.progress)
         return "Barnes"
+
+    def _get_name_thread(self):
+        """Get name from long running task using a thread"""
+        first = self._get_first_name()
+        last = self._get_last_name()
+        self.end = time.time()
+        elapsed = f"{(self.end - self.start):.2f} seconds"
+        self.window["-output-"].update(f"{first} {last}")
+        self.window["-time_output-"].update(elapsed)
+
+    def _get_name_thread_async(self):
+        """get name from long running task using a thread and async"""
+        name = asyncio.run(self._get_name_async())
+        self.end = time.time()
+        elapsed = f"{(self.end - self.start):.2f} seconds"
+        self.window["-output-"].update(f"{name}")
+        self.window["-time_output-"].update(elapsed)
